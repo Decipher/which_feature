@@ -1,17 +1,18 @@
 <?php
 /**
  * @file
- * Views UI module integration.
+ * Custom Formatters module integration.
  */
 
 /**
  * Implements hook_which_feature_preprocess_table_alter() on behalf of
- * views_ui.module
+ * custom_formatters.module
  */
-function views_ui_which_feature_preprocess_table_alter(&$vars) {
+function custom_formatters_which_feature_preprocess_table_alter(&$vars) {
   $menu = menu_get_item();
-  if ('admin/structure/views' == $menu['path']) {
-    $component = 'views_view';
+  if ('admin/structure/formatters' == $menu['path']) {
+    ctools_include('export');
+    $component = 'formatters';
 
     $operations = array_pop($vars['header']);
     $vars['header'][] = array(
@@ -27,9 +28,9 @@ function views_ui_which_feature_preprocess_table_alter(&$vars) {
         'class' => array('which-feature'),
       );
 
-      $view = views_get_view($delta);
-      if (isset($view->export_module)) {
-        $module = features_get_info('module', $view->export_module);
+      $formatter = ctools_export_crud_load($component, $delta);
+      if (isset($formatter->export_module)) {
+        $module = features_get_info('module', $formatter->export_module);
         $column['data'] = $module->info['name'];
         if (isset($module->info['features'][$component]) && in_array($delta, $module->info['features'][$component])) {
           $column['data'] = l($column['data'], 'admin/structure/features/' . $module->name);

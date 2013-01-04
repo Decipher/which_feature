@@ -1,17 +1,18 @@
 <?php
 /**
  * @file
- * Views UI module integration.
+ * Delta module integration.
  */
 
 /**
  * Implements hook_which_feature_preprocess_table_alter() on behalf of
- * views_ui.module
+ * delta_ui.module
  */
-function views_ui_which_feature_preprocess_table_alter(&$vars) {
+function delta_ui_which_feature_preprocess_table_alter(&$vars) {
   $menu = menu_get_item();
-  if ('admin/structure/views' == $menu['path']) {
-    $component = 'views_view';
+  if ('admin/appearance/delta' == $menu['path']) {
+    ctools_include('export');
+    $component = 'delta';
 
     $operations = array_pop($vars['header']);
     $vars['header'][] = array(
@@ -21,17 +22,17 @@ function views_ui_which_feature_preprocess_table_alter(&$vars) {
     );
     array_push($vars['header'], $operations);
 
-    foreach ($vars['rows'] as $delta => &$row) {
+    foreach ($vars['rows'] as $id => &$row) {
       $column = array(
         'data' => '',
         'class' => array('which-feature'),
       );
 
-      $view = views_get_view($delta);
-      if (isset($view->export_module)) {
-        $module = features_get_info('module', $view->export_module);
+      $delta = ctools_export_crud_load($component, $id);
+      if (isset($delta->export_module)) {
+        $module = features_get_info('module', $delta->export_module);
         $column['data'] = $module->info['name'];
-        if (isset($module->info['features'][$component]) && in_array($delta, $module->info['features'][$component])) {
+        if (isset($module->info['features'][$component]) && in_array($id, $module->info['features'][$component])) {
           $column['data'] = l($column['data'], 'admin/structure/features/' . $module->name);
         }
       }

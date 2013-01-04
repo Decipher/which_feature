@@ -1,17 +1,18 @@
 <?php
 /**
  * @file
- * Views UI module integration.
+ * Configuration builder UI module integration.
  */
 
 /**
  * Implements hook_which_feature_preprocess_table_alter() on behalf of
- * views_ui.module
+ * config_builder_ui.module
  */
-function views_ui_which_feature_preprocess_table_alter(&$vars) {
+function config_builder_ui_which_feature_preprocess_table_alter(&$vars) {
   $menu = menu_get_item();
-  if ('admin/structure/views' == $menu['path']) {
-    $component = 'views_view';
+  if ('admin/structure/config_builder' == $menu['path']) {
+    ctools_include('export');
+    $component = 'config_builder';
 
     $operations = array_pop($vars['header']);
     $vars['header'][] = array(
@@ -27,9 +28,9 @@ function views_ui_which_feature_preprocess_table_alter(&$vars) {
         'class' => array('which-feature'),
       );
 
-      $view = views_get_view($delta);
-      if (isset($view->export_module)) {
-        $module = features_get_info('module', $view->export_module);
+      $config = ctools_export_crud_load($component, $delta);
+      if (isset($config->export_module)) {
+        $module = features_get_info('module', $config->export_module);
         $column['data'] = $module->info['name'];
         if (isset($module->info['features'][$component]) && in_array($delta, $module->info['features'][$component])) {
           $column['data'] = l($column['data'], 'admin/structure/features/' . $module->name);
