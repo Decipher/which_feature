@@ -14,15 +14,18 @@ Features
 
 - Supported exportables:
   - Bean module: Block types.
-  - Context module: Contexts.
-  - Custom Formatters module: Formatters.
+  - Chaos tool suite (ctools) module Export UI based exportables, including but
+    not limited to:
+    - Custom Formatters module: Formatters.
+    - Configuration builder module: Configuration pages.
+    - Context module: Contexts.
+    - Delta module: Deltas.
+    - Panels module: Mini panels and Layouts.
+    - Views module: Views.
   - Custom Breadcrumbs module: Custom breadcrumbs.
-  - Configuration builder module: Configuration pages.
-  - Delta module: Deltas.
   - Drupal core Node module: Content types.
   - Drupal core User module: Permissions.
   - Page Manager module: Pages.
-  - Views module: Views.
 
 
 

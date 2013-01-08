@@ -15,6 +15,13 @@ foreach (module_list() as $module) {
 }
 
 /**
+ * Implements hook_preprocess().
+ */
+function which_feature_preprocess_table(&$vars) {
+  drupal_alter('which_feature_preprocess_table', $vars);
+}
+
+/**
  *
  */
 function which_feature_get_component($name) {
