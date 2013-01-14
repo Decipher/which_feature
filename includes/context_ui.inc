@@ -5,15 +5,15 @@
  */
 
 /**
- *
+ * Implements hook_which_feature_info_alter() on behalf of context_ui.module.
  */
-function context_ui_which_feature_ctools_table_row(&$delta, &$row) {
-  if (count($row['data']) == 1) {
-    $row['data'][0]['colspan']++;
-    return FALSE;
-  }
-  else {
-    list($tag, $delta) = explode(':', $delta);
-    return TRUE;
-  }
+function context_ui_which_feature_info_alter(&$items) {
+  $items['admin/structure/context']['delta callback'] = 'which_feature_context_delta';
+}
+
+/**
+ * Delta callback for context_ui.module.
+ */
+function which_feature_context_delta(&$delta, $row) {
+  list($tag, $delta) = explode(':', $delta);
 }

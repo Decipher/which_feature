@@ -5,50 +5,42 @@
  */
 
 /**
- * Implements hook_which_feature_preprocess_table_alter() on behalf of
- * page_manager.module
+ * Implements hook_which_feature_info() on behalf of page_manager.module.
  */
-function page_manager_which_feature_preprocess_table_alter(&$vars) {
-  $menu = menu_get_item();
-  if ('admin/structure/pages' == $menu['path']) {
-    ctools_include('export');
-    $component = 'page_manager_pages';
-    $tasks = page_manager_get_tasks_by_type('page');
+function page_manager_which_feature_info() {
+  $items = array();
 
-    $operations = array_pop($vars['header']);
-    $vars['header'][] = array(
-      'data' => t('Module'),
-      'class' => array('which-feature'),
-      'style' => 'width: 16%',
-    );
-    array_push($vars['header'], $operations);
+  $items['admin/structure/pages'] = array(
+    'component' => 'page_manager_pages',
+    'components callback' => 'which_feature_page_manager_components',
+  );
 
-    foreach ($vars['rows'] as $delta => &$row) {
-      $column = array(
-        'data' => '',
-        'class' => array('which-feature'),
-      );
+  return $items;
+}
 
-      if (isset($tasks[$delta]) && isset($tasks[$delta]['module'])) {
-        $module = features_get_info('module', $tasks[$delta]['module']);
-        $column['data'] = $module->info['name'];
-      }
+/**
+ * Components callback for page_manager.module.
+ */
+function which_feature_page_manager_components($item) {
+  $components = array();
 
-      elseif (preg_match('/page-(.*)/', $delta, $matches)) {
-        $page = ctools_export_crud_load($component, $matches[1]);
-        if (isset($page->export_module)) {
-          $module = features_get_info('module', $page->export_module);
-          $column['data'] = $module->info['name'];
-
-          if (isset($module->info['features'][$component]) && in_array($matches[1], $module->info['features'][$component])) {
-            $column['data'] = l($column['data'], 'admin/structure/features/' . $module->name);
-          }
+  $tasks = page_manager_get_tasks_by_type('page');
+  foreach ($tasks as $task) {
+    if (isset($task['subtasks']) && $task['subtasks'] && isset($task['subtasks callback'])) {
+      $subtasks = $task['subtasks callback']($task);
+      foreach ($subtasks as $subtask) {
+        if (!isset($subtask['subtask'])) {
+          $components["{$task['name']}-{$subtask['name']}"] = $task['module'];
+        }
+        elseif (isset($subtask['subtask']->export_module)) {
+          $components["{$task['name']}-{$subtask['name']}"] = $subtask['subtask']->export_module;
         }
       }
-
-      $operations = array_pop($row['data']);
-      $row['data'][] = $column;
-      array_push($row['data'], $operations);
+    }
+    else {
+      $components[$task['name']] = $task['module'];
     }
   }
+
+  return $components;
 }
